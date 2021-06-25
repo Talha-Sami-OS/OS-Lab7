@@ -6,11 +6,12 @@ extern struct filehandle_t file_handle_array[MAX_OPEN_FILES]; // Array for stori
 
 int file_available(char *filename){
     inode_num = -1;		//physical file
-    int i = 0;
+				//inode_number initialized in simplefs-disk
     struct inode_t file_inode; //struct from simplefs-disk.h
+    int i = 0;
     for (i = 0; i < NUM_INODES; i++)
     {
-        simplefs_readInode(i, &file_inode);
+        simplefs_readInode(i, inode_t *inodeptr);	//reads the specified inode from disk and copies it into the inode pointer
         if (file_inode.status == INODE_IN_USE)
 	{
             if (file_inode.name == filename) 
@@ -35,15 +36,15 @@ int simplefs_create(char *filename){
     }
 
      //Disk space availability
-    int datablock_num = simplefs_allocDataBlock(); 	//allocates a free data block
-    if (datablock_num == -1)
+    int free_data_block = simplefs_allocDataBlock(); 	//allocates a free data block
+    if (free_data_block == -1)
     {
-	    return -1;
+	    return -1;	//if no free block can be found
     }
 	
     // inode availibilty
     int  inode_num = simplefs_allocInode(); 	//allocates a free inode on disk
-    if (inode_num == -1)	
+    if (inode_num == -1)	//Inode number for the file
     {
 	return -1;	//if no free inode can be found
     }
